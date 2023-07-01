@@ -1,0 +1,78 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block header %}
+{{ block.super }}
+<div class="header-tabs">
+    <div class="tabs tabs--2">
+        <div class="tab{% if 'follow' not in request.GET %} tab--active{% endif %}">
+            <a href="{% url 'home' %}" class="tab__link">
+                <span class="tab__label">latest</span>
+            </a>
+        </div>
+        <div class="tab{% if 'follow' in request.GET %} tab--active{% endif %}">
+            <a href="{% url 'home' %}?follow" class="tab__link">
+                <span class="tab__label">follow</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<ul class="post-list">
+    {% for post in object_list %}
+    <li class="post-list__item">
+        <div class="post">
+
+            <div class="post__user">
+                <a href="{% url 'profile' post.user.pk %}" class="user">
+                    <img src="{{ post.user.icon_url }}">
+                    <span>{{ post.user.username }}</span>
+                </a>
+            </div>
+
+            <div class="post__image">
+                <a href="{% url 'post_detail' post.pk %}">
+                    <img src="{{ post.img.url }}">
+                </a>
+                <div class="menu-button" role="button">
+                    <i class="fas fa-ellipsis-h"></i>
+                    <div class="action-menu">
+                        <ul class="action-list">
+                            <li class="action-list__item">
+                                {% if post.user == user %}
+                                <a href="{% url 'delete_post' post.pk %}">削除</a>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="post__actions">
+                <div class="post__like">
+                    <a class="like{% if post in user.like.all %} like--active{% endif %}" data-pk="{{post.pk}}"><i class="fas fa-heart"></i></a>
+                </div>
+
+                <div class="post__comment">
+                    <a href="{% url 'comment' post.pk %}" class="comment"><i class="fas fa-comment"></i></a>
+                </div>
+            </div>
+            
+            <div class="post__body">
+                {{ post.note }}
+            </div>
+            
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% include "main/pagination.html" %}
+{% endblock %}
+
+{% block footer %}{% include "main/footer.html" with has_floating_button=True %}{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'main/js/action-menu.js' %}"></script>
+<script src="{% static 'main/js/like-post.js' %}"></script>
+{% endblock %}
